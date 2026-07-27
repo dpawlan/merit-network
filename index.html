@@ -214,14 +214,65 @@
     const label=funnel.querySelector('.fs[data-m="'+m+'"] .k').textContent;
     pipenote.textContent='Filtered: '+label+' ('+n+') · click again for all';
   }
-  funnel.querySelectorAll('.fs').forEach(fs=>fs.addEventListener('click',()=>{const m=fs.dataset.m;apply((m===sel&&m!=='all')?'all':m);}));
-  apply('all');
-  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');document.getElementById(b.dataset.t).classList.add('active');
-    apply('all');window.scrollTo(0,0);
+  // ---- view state survives a refresh ----------------------------------------
+  // Tab + filter live in the URL hash (#tab=pipeline&filter=engaged) so a refresh, a
+  // bookmark, and a shared link all land where you were. Scroll position rides in
+  // sessionStorage per tab, since it is per-visit rather than per-link.
+  const TABS=[...document.querySelectorAll('.tab')].map(b=>b.dataset.t);
+  const FILTERS=[...funnel.querySelectorAll('.fs')].map(f=>f.dataset.m);
+  if('scrollRestoration' in history) history.scrollRestoration='manual';
+
+  function readHash(){
+    const h=new URLSearchParams(location.hash.replace(/^#/,''));
+    const tab=h.get('tab'), filter=h.get('filter');
+    return {tab:TABS.includes(tab)?tab:null, filter:FILTERS.includes(filter)?filter:null};
+  }
+  function writeHash(){
+    const p=new URLSearchParams();
+    p.set('tab',current);
+    if(sel!=='all') p.set('filter',sel);
+    // replaceState, not a hash assignment: refresh remembers, but the back button
+    // does not fill up with every filter click.
+    history.replaceState(null,'','#'+p.toString());
+  }
+  const scrollKey=()=>'merit-network:scroll:'+current;
+  function saveScroll(){ try{sessionStorage.setItem(scrollKey(),String(window.scrollY));}catch(e){} }
+  function restoreScroll(){
+    let y=0; try{y=parseInt(sessionStorage.getItem(scrollKey())||'0',10)||0;}catch(e){}
+    // After the tab section is visible, so the page is tall enough to scroll.
+    requestAnimationFrame(()=>window.scrollTo(0,y));
+  }
+
+  let current=TABS[0];
+  function showTab(t,{resetScroll=false}={}){
+    if(!TABS.includes(t)) t=TABS[0];
+    current=t;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.t===t));
+    document.querySelectorAll('section').forEach(x=>x.classList.toggle('active',x.id===t));
+    if(resetScroll) window.scrollTo(0,0);
+  }
+
+  funnel.querySelectorAll('.fs').forEach(fs=>fs.addEventListener('click',()=>{
+    const m=fs.dataset.m;apply((m===sel&&m!=='all')?'all':m);writeHash();
   }));
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+    saveScroll();                       // remember where you were on the tab you are leaving
+    showTab(b.dataset.t,{resetScroll:true});
+    apply('all');                       // a fresh tab starts unfiltered, as before
+    writeHash();
+  }));
+
+  // Restore on load: hash wins, otherwise the markup default (Overview, unfiltered).
+  const initial=readHash();
+  showTab(initial.tab||TABS[0]);
+  apply(initial.filter||'all');
+  if(initial.tab) restoreScroll();      // only if we actually came back to a remembered view
+  writeHash();
+
+  addEventListener('scroll',()=>{clearTimeout(window.__st);window.__st=setTimeout(saveScroll,150)},{passive:true});
+  addEventListener('beforeunload',saveScroll);
+  // Back/forward between hash states should move the view, not silently desync it.
+  addEventListener('hashchange',()=>{const s=readHash();showTab(s.tab||TABS[0]);apply(s.filter||'all');});
 </script>
 </body>
 </html>
