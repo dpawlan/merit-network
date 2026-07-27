@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merit · Network</title>
+<style>
+  :root{
+    --bg:#080808; --panel:#0f0f10; --panel2:#161617; --ink:#fafafa; --muted:#a1a1a1; --faint:#6b6b6b;
+    --line:#242424; --line2:#1a1a1a; --accent:#3080ff; --accentdim:#1e5fd0; --red:#df2225; --radius:10px;
+    --disp:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  :root[data-theme="light"]{--bg:#fff;--panel:#fff;--panel2:#fafafa;--ink:#0a0a0a;--muted:#737373;--faint:#a1a1a1;--line:#e5e5e5;--line2:#efefef}
+  @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#fff;--panel:#fff;--panel2:#fafafa;--ink:#0a0a0a;--muted:#737373;--faint:#a1a1a1;--line:#e5e5e5;--line2:#efefef}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+  a{color:var(--accent);text-decoration:none}
+  header{border-bottom:1px solid var(--line)}
+  .hd{display:flex;align-items:center;gap:14px;max-width:860px;margin:0 auto;padding:16px 24px}
+  .mark{font-family:var(--disp);font-weight:800;letter-spacing:-.04em;text-transform:uppercase;font-size:17px}
+  .mark .sys{color:var(--faint)}
+  .sep{width:1px;height:18px;background:var(--line)}
+  .crumb{font-family:var(--disp);font-weight:700;text-transform:uppercase;letter-spacing:.03em;font-size:11px;color:var(--muted)}
+  .hd .right{margin-left:auto;font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .tabs{display:flex;gap:2px;max-width:860px;margin:0 auto;padding:0 24px;border-bottom:1px solid var(--line);overflow-x:auto}
+  .tab{font-family:var(--disp);font-weight:700;text-transform:uppercase;letter-spacing:.03em;font-size:12px;color:var(--faint);background:none;border:none;border-bottom:2px solid transparent;padding:14px 14px 12px;cursor:pointer;white-space:nowrap}
+  .tab:hover{color:var(--muted)} .tab.active{color:var(--ink);border-bottom-color:var(--accent)}
+  section{display:none;padding:32px 0 70px} section.active{display:block}
+  h1{font-family:var(--disp);font-weight:800;letter-spacing:-.04em;text-transform:uppercase;font-size:24px;margin:0 0 24px}
+  .sub{color:var(--faint);font-size:11px;margin:24px 0 10px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--disp);font-weight:700}
+  .big{display:flex;gap:38px;flex-wrap:wrap;margin:0 0 4px}
+  .big .n{font-family:var(--disp);font-weight:800;font-size:38px;letter-spacing:-.03em;line-height:1}
+  .big .n.a{color:var(--accent)}
+  .big .l{font-size:11px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+  .list{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .li{display:flex;gap:14px;align-items:baseline;padding:12px 16px;border-bottom:1px solid var(--line2);font-size:13.5px}
+  .li:last-child{border-bottom:none}
+  .li .when{font-family:var(--disp);font-weight:700;font-size:11px;color:var(--accent);width:52px;flex:none;text-transform:uppercase}
+  .li .r{color:var(--faint);margin-left:auto;font-size:11.5px;white-space:nowrap}
+  .funnel{display:flex;gap:4px;margin:0 0 26px}
+  .fs{flex:1;text-align:center;cursor:pointer;border-radius:8px;padding:6px 2px;transition:opacity .12s,background .12s;user-select:none}
+  .fs:hover{background:var(--panel2)} #funnel.on .fs{opacity:.4} #funnel.on .fs.sel{opacity:1;background:var(--panel2)}
+  .fs.sel .k,.fs.sel .c{color:var(--accent)}
+  .fs .c{font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.02em}
+  .fs .k{font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:.03em;margin-top:3px}
+  .fs .b{height:3px;border-radius:2px;margin-top:8px;background:var(--line)}
+  table{border-collapse:collapse;width:100%}
+  .tw{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line2);vertical-align:top}
+  thead th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:600}
+  tbody tr:last-child td{border-bottom:none}
+  .nm{font-weight:600}.co{color:var(--faint);font-size:12px}
+  .nextm{font-size:13px}
+  .notes{display:block;font-size:11px;color:var(--accent);margin-top:2px}
+  .lt{display:inline-block;font-size:10px;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-top:4px}
+  .who{font-size:12px;font-weight:600}
+  .st{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;white-space:nowrap}
+  .dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--faint)}
+  .dot.a{background:var(--accent)} .dot.f{background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+  .ball{font-size:11.5px;color:var(--faint)} .ball.you{color:var(--accent)}
+  .sg{display:flex;align-items:center;gap:14px;padding:9px 16px;border-bottom:1px solid var(--line2);font-size:13px}
+  .sg:last-child{border-bottom:none}
+  .sg .sl{width:210px;flex:none} .sg .tr{flex:1;height:8px;background:var(--line2);border-radius:4px;overflow:hidden}
+  .sg .fl{height:100%;background:var(--accent);border-radius:4px} .sg .cn{width:22px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+  .sg.zero .sl,.sg.zero .cn{color:var(--red)} .sg.zero .fl{background:var(--red)}
+  .mn{font-size:11px;color:var(--faint);margin:10px 2px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <span class="mark">Merit<span class="sys"> Systems</span></span>
+    <span class="sep"></span><span class="crumb">Network</span>
+    <span class="right">26 relationships · 2026-07-27 · auto-generated</span>
+  </div>
+</header>
+<nav class="tabs">
+  <button class="tab active" data-t="overview">Overview</button>
+  <button class="tab" data-t="pipeline">Pipeline</button>
+  <button class="tab" data-t="backlog">Backlog</button>
+  <button class="tab" data-t="segments">Segments</button>
+  <button class="tab" data-t="community">Community</button>
+</nav>
+<div class="wrap">
+
+  <section class="active" id="overview">
+    <h1>Overview</h1>
+    <div class="big">
+      <div><div class="n">26</div><div class="l">Relationships</div></div>
+      <div><div class="n a">17</div><div class="l">In pipeline</div></div>
+      <div><div class="n">4</div><div class="l">Backlog</div></div>
+      <div><div class="n">6</div><div class="l">Waiting on them</div></div>
+    </div>
+    <div class="sub">Waiting on you</div>
+    <div class="list">
+      <div class="li"><span class="when">Now</span><span><b>Jordan Gottlieb</b> — Get a first call with Jordan on the books</span><span class="r">in conversation</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Liran Navon</b> — First call Tue 2026-07-28 3:00pm EDT (Google Meet) — learn about S…</span><span class="r">in conversation</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Rahim Amlani</b> — Get a meeting on the books with Rahim</span><span class="r">in conversation</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Ronak Patel</b> — Follow up with Ronak and get a first meeting on the books (targeti…</span><span class="r">in conversation</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Sam Burke</b> — First call Wed 2026-07-29 1:30pm EDT (Google Meet)</span><span class="r">in conversation</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Amit Brandon Kadosh</b> — Follow up on the Toast connection — he offered to find contacts st…</span><span class="r">engaged</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Bobby Thakkar</b> — Slot Propaganda in for an August event (like the Linq/Circle ones)…</span><span class="r">pending onboarding</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Jake Hoffman</b> — Onboard GolfRoots onto AgentCash</span><span class="r">pending onboarding</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Truman Gelnovach</b> — Jam session / office visit to scope the ticket-serving + payment-i…</span><span class="r">pending onboarding</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Alexander (Channel3)</b> — Call Fri 2026-07-31 — endpoint resolved (Slack); get Channel3 list…</span><span class="r">onboarded</span></div>
+      <div class="li"><span class="when">Now</span><span><b>Tyler Goldman</b> — Maintain / activate the Linq integration; no open blocker</span><span class="r">onboarded</span></div>
+    </div>
+  </section>
+
+  <section id="pipeline">
+    <h1>Pipeline</h1>
+    <div class="funnel" id="funnel">
+      <div class="fs" data-m="all"><div class="c">17</div><div class="k">All</div><div class="b" style="background:var(--muted)"></div></div>
+      <div class="fs" data-m="contacted"><div class="c">5</div><div class="k">Contacted</div><div class="b" style="background:var(--accentdim)"></div></div>
+      <div class="fs" data-m="conversation"><div class="c">5</div><div class="k">In convo</div><div class="b" style="background:var(--accent)"></div></div>
+      <div class="fs" data-m="engaged"><div class="c">2</div><div class="k">Engaged</div><div class="b" style="background:var(--accent)"></div></div>
+      <div class="fs" data-m="pending"><div class="c">3</div><div class="k">Pending onboard</div><div class="b" style="background:var(--accent)"></div></div>
+      <div class="fs" data-m="onboarded"><div class="c">2</div><div class="k">Onboarded</div><div class="b" style="background:var(--accent)"></div></div>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Relationship</th><th>Stage</th><th>Ball</th><th>Next move</th></tr></thead>
+        <tbody>
+          <tr><td><div class="nm">Noam Magar</div><div class="co">Wolt</div></td><td><span class="st"><span class="dot "></span>Contacted</span></td><td><span class="ball">Them</span></td><td class="nextm">Awaiting reply to outreach (sent ~2026-07-27); nudge if no response</td></tr>
+          <tr><td><div class="nm">Omer Orlev</div><div class="co">Stealth Startup</div></td><td><span class="st"><span class="dot "></span>Contacted</span></td><td><span class="ball">Them</span></td><td class="nextm">Awaiting reply to outreach (sent ~2026-07-27); nudge if no response</td></tr>
+          <tr><td><div class="nm">Omer Ran Cohen</div><div class="co">Tapp</div></td><td><span class="st"><span class="dot "></span>Contacted</span></td><td><span class="ball">Them</span></td><td class="nextm">Awaiting reply to outreach (sent ~2026-07-27); nudge if no response</td></tr>
+          <tr><td><div class="nm">Yael Greenberger</div><div class="co">Woman2Woman (8200 Alumni Association)</div></td><td><span class="st"><span class="dot "></span>Contacted</span></td><td><span class="ball">Them</span></td><td class="nextm">Awaiting reply to outreach (sent ~2026-07-27); nudge if no response</td></tr>
+          <tr><td><div class="nm">Yehoshua King</div><div class="co">Booking Pro AI</div></td><td><span class="st"><span class="dot "></span>Contacted</span></td><td><span class="ball">Them</span></td><td class="nextm">Awaiting reply to outreach (sent ~2026-07-27); nudge if no response</td></tr>
+          <tr><td><div class="nm">Jordan Gottlieb</div><div class="co">American Express</div></td><td><span class="st"><span class="dot a"></span>In conversation</span></td><td><span class="ball you">You</span></td><td class="nextm">Get a first call with Jordan on the books</td></tr>
+          <tr><td><div class="nm">Liran Navon</div><div class="co">Sauce</div></td><td><span class="st"><span class="dot a"></span>In conversation</span></td><td><span class="ball you">You</span></td><td class="nextm">First call Tue 2026-07-28 3:00pm EDT (Google Meet) — learn about Sauce, scope the co-branded ordering pilot, loop in Merit CEO</td></tr>
+          <tr><td><div class="nm">Rahim Amlani</div><div class="co">The Amlani Group</div></td><td><span class="st"><span class="dot a"></span>In conversation</span></td><td><span class="ball you">You</span></td><td class="nextm">Get a meeting on the books with Rahim<a class="notes" href="file:///Users/davidpawlan/Coding/DaveBrain/1_knowledge/raw/granola/2026-07-01-rahim-amlani-lauren-barucha-intro.md">7/1 notes ↗</a></td></tr>
+          <tr><td><div class="nm">Ronak Patel</div><div class="co">MoonBrew</div></td><td><span class="st"><span class="dot a"></span>In conversation</span></td><td><span class="ball you">You</span></td><td class="nextm">Follow up with Ronak and get a first meeting on the books (targeting week of 2026-07-28)</td></tr>
+          <tr><td><div class="nm">Sam Burke</div><div class="co">Hale</div></td><td><span class="st"><span class="dot a"></span>In conversation</span></td><td><span class="ball you">You</span></td><td class="nextm">First call Wed 2026-07-29 1:30pm EDT (Google Meet)<a class="notes" href="file:///Users/davidpawlan/Coding/DaveBrain/1_knowledge/raw/granola/2026-06-18-sam-hale-catchup.md">6/18 notes ↗</a></td></tr>
+          <tr><td><div class="nm">Amit Brandon Kadosh</div><div class="co">Rex</div></td><td><span class="st"><span class="dot a"></span>Engaged</span></td><td><span class="ball you">You</span></td><td class="nextm">Follow up on the Toast connection — he offered to find contacts still at Toast<a class="notes" href="file:///Users/davidpawlan/Coding/DaveBrain/1_knowledge/raw/granola/2026-07-23-amit-kadosh-encourse-gtm-inventory-wedge.md">7/23 notes ↗</a></td></tr>
+          <tr><td><div class="nm">Ryan Conner</div><div class="co">NYU</div></td><td><span class="st"><span class="dot a"></span>Engaged</span></td><td><span class="ball">Them</span></td><td class="nextm">Await Ryan&#x27;s list of NYU clubs + contacts (he said he&#x27;d follow up week of 2026-07-28), then line up club pilots</td></tr>
+          <tr><td><div class="nm">Bobby Thakkar</div><div class="co">Propaganda (design studio)</div></td><td><span class="st"><span class="dot a"></span>Pending onboarding</span></td><td><span class="ball you">You</span></td><td class="nextm">Slot Propaganda in for an August event (like the Linq/Circle ones) and await Gayatri Taley&#x27;s ideas after the offsite<span class="lt">Slack · 7/27</span></td></tr>
+          <tr><td><div class="nm">Jake Hoffman</div><div class="co">GolfRoots</div></td><td><span class="st"><span class="dot a"></span>Pending onboarding</span></td><td><span class="ball you">You</span></td><td class="nextm">Onboard GolfRoots onto AgentCash</td></tr>
+          <tr><td><div class="nm">Truman Gelnovach</div><div class="co">Ticket Wallet</div></td><td><span class="st"><span class="dot a"></span>Pending onboarding</span></td><td><span class="ball you">You</span></td><td class="nextm">Jam session / office visit to scope the ticket-serving + payment-integration APIs (active in Slack)<span class="lt">Slack · 7/27</span></td></tr>
+          <tr><td><div class="nm">Alexander (Channel3)</div><div class="co">Channel3</div></td><td><span class="st"><span class="dot f"></span>Onboarded</span></td><td><span class="ball you">You</span></td><td class="nextm">Call Fri 2026-07-31 — endpoint resolved (Slack); get Channel3 listed + launch co-marketing<span class="lt">Slack · 7/27</span></td></tr>
+          <tr><td><div class="nm">Tyler Goldman</div><div class="co">Linq</div></td><td><span class="st"><span class="dot f"></span>Onboarded</span></td><td><span class="ball you">You</span></td><td class="nextm">Maintain / activate the Linq integration; no open blocker<a class="notes" href="file:///Users/davidpawlan/Coding/DaveBrain/1_knowledge/raw/granola/2026-07-20-linq-merit-demo-day-prep.md">7/20 notes ↗</a><span class="lt">Slack · 7/27</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mn" id="pipenote">17 in motion — click a stage to filter.</p>
+  </section>
+
+  <section id="backlog">
+    <h1>Backlog</h1>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Target</th><th>Requested</th><th>Role</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><div class="nm">Allie Goodfriend</div><div class="co">Uber</div></td><td><span class="who">David</span></td><td class="co">connector</td><td><span class="st"><span class="dot"></span>Backlog</span></td></tr>
+          <tr><td><div class="nm">Lindsay Daughtery</div><div class="co">Ludlow Ventures</div></td><td><span class="who">David</span></td><td class="co">connector</td><td><span class="st"><span class="dot"></span>Backlog</span></td></tr>
+          <tr><td><div class="nm">Ofek Ron</div><div class="co">Oshi</div></td><td><span class="who">David</span></td><td class="co">both</td><td><span class="st"><span class="dot"></span>Backlog</span></td></tr>
+          <tr><td><div class="nm">Shula Horton</div><div class="co">Curri</div></td><td><span class="who">David</span></td><td class="co">learning-source</td><td><span class="st"><span class="dot"></span>Backlog</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="segments">
+    <h1>Segments</h1>
+    <div class="tw">
+      <div class="sg"><div class="sl">Food Delivery</div><div class="tr"><div class="fl" style="width:100%"></div></div><div class="cn">7</div></div>
+      <div class="sg"><div class="sl">Crypto &amp; Agent Communities</div><div class="tr"><div class="fl" style="width:57%"></div></div><div class="cn">4</div></div>
+      <div class="sg"><div class="sl">Events &amp; Networking</div><div class="tr"><div class="fl" style="width:29%"></div></div><div class="cn">2</div></div>
+      <div class="sg"><div class="sl">Food &amp; Beverage</div><div class="tr"><div class="fl" style="width:29%"></div></div><div class="cn">2</div></div>
+      <div class="sg"><div class="sl">Restaurant Booking</div><div class="tr"><div class="fl" style="width:29%"></div></div><div class="cn">2</div></div>
+      <div class="sg"><div class="sl">Beauty &amp; Personal Care</div><div class="tr"><div class="fl" style="width:14%"></div></div><div class="cn">1</div></div>
+      <div class="sg"><div class="sl">Commerce &amp; Payments Infra</div><div class="tr"><div class="fl" style="width:14%"></div></div><div class="cn">1</div></div>
+      <div class="sg"><div class="sl">Delivery &amp; Logistics</div><div class="tr"><div class="fl" style="width:14%"></div></div><div class="cn">1</div></div>
+      <div class="sg"><div class="sl">Shopify</div><div class="tr"><div class="fl" style="width:14%"></div></div><div class="cn">1</div></div>
+      <div class="sg"><div class="sl">Ticketing</div><div class="tr"><div class="fl" style="width:14%"></div></div><div class="cn">1</div></div>
+      <div class="sg"><div class="sl">Travel</div><div class="tr"><div class="fl" style="width:14%"></div></div><div class="cn">1</div></div>
+      <div class="sg"><div class="sl">University &amp; Campus</div><div class="tr"><div class="fl" style="width:14%"></div></div><div class="cn">1</div></div>
+      <div class="sg zero"><div class="sl">Advertising</div><div class="tr"><div class="fl" style="width:3%"></div></div><div class="cn">0</div></div>
+    </div>
+    <p class="mn">Red = whitespace (0 contacts).</p>
+  </section>
+
+  <section id="community">
+    <h1>Community &amp; Events</h1>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Person</th><th>Brings</th><th>Status</th><th>Initiative</th></tr></thead>
+        <tbody>
+          <tr><td><div class="nm">Jenna Teeman</div><div class="co">Circle</div></td><td class="co">collab-partner</td><td><span class="st"><span class="dot f"></span>Scheduled</span></td><td class="nextm">Merit x Circle NYC kickoff — &quot;how to get started in agentic commerce,&quot; ~80 devs at Merit&#x27;s Brooklyn office (Wed 2026-07-29)</td></tr>
+          <tr><td><div class="nm">Megan Reynolds</div><div class="co">Infra Community</div></td><td class="co">community-host</td><td><span class="st"><span class="dot a"></span>Connected</span></td><td class="nextm">Brainstorm a community activation with Infra to grow Merit&#x27;s agent community</td></tr>
+          <tr><td><div class="nm">Jason Malefakis</div><div class="co">Wayo Work</div></td><td class="co">collab-partner</td><td><span class="st"><span class="dot "></span>Target</span></td><td class="nextm">Agentic-commerce activation event (e.g. buy lunch/coffee with your agent) — format TBD</td></tr>
+          <tr><td><div class="nm">Joanna Tran</div><div class="co">Dynamic (acquired by Fireblocks)</div></td><td class="co">collab-partner</td><td><span class="st"><span class="dot "></span>Target</span></td><td class="nextm">A focused event/community for agent builders, founders &amp; operators (with Dynamic/Fireblocks)</td></tr>
+          <tr><td><div class="nm">Zach Hughes</div><div class="co">Outlandish</div></td><td class="co">community-host</td><td><span class="st"><span class="dot "></span>Target</span></td><td class="nextm">Tap Outlandish&#x27;s community (new-money / crypto / agentic-era) for an activation</td></tr>
+          <tr><td><div class="nm">Tyler Goldman</div><div class="co">Linq</div></td><td class="co">collab-partner</td><td><span class="st"><span class="dot "></span>Done</span></td><td class="nextm">Linq x Merit joint demo day — DONE, co-hosted 2026-07-23; recurring co-marketing to continue</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+<script>
+  const funnel=document.getElementById('funnel');
+  const pipenote=document.getElementById('pipenote');
+  const DEF=pipenote.textContent;
+  const rows=()=>document.querySelectorAll('#pipeline tbody tr');
+  let sel='all';
+  function apply(m){
+    sel=m;
+    funnel.querySelectorAll('.fs').forEach(x=>x.classList.toggle('sel',x.dataset.m===m));
+    if(m==='all'){funnel.classList.remove('on');rows().forEach(r=>r.style.display='');pipenote.textContent=DEF;return;}
+    funnel.classList.add('on');let n=0;
+    rows().forEach(r=>{const t=r.querySelector('.st').textContent.toLowerCase();const s=t.includes(m);r.style.display=s?'':'none';if(s)n++;});
+    const label=funnel.querySelector('.fs[data-m="'+m+'"] .k').textContent;
+    pipenote.textContent='Filtered: '+label+' ('+n+') · click again for all';
+  }
+  funnel.querySelectorAll('.fs').forEach(fs=>fs.addEventListener('click',()=>{const m=fs.dataset.m;apply((m===sel&&m!=='all')?'all':m);}));
+  apply('all');
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');document.getElementById(b.dataset.t).classList.add('active');
+    apply('all');window.scrollTo(0,0);
+  }));
+</script>
+</body>
+</html>
