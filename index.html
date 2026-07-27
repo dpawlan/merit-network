@@ -239,8 +239,18 @@
   function saveScroll(){ try{sessionStorage.setItem(scrollKey(),String(window.scrollY));}catch(e){} }
   function restoreScroll(){
     let y=0; try{y=parseInt(sessionStorage.getItem(scrollKey())||'0',10)||0;}catch(e){}
-    // After the tab section is visible, so the page is tall enough to scroll.
-    requestAnimationFrame(()=>window.scrollTo(0,y));
+    if(!y) return;
+    // The section we just made .active has not laid out yet, so the document is still
+    // short and a single scrollTo() would clamp to 0. Retry across a few frames until the
+    // page is actually tall enough (or give up rather than fight the user's own scrolling).
+    let tries=0;
+    (function attempt(){
+      if(++tries>30) return;
+      const max=document.documentElement.scrollHeight-innerHeight;
+      if(max<y){ requestAnimationFrame(attempt); return; }   // not tall enough yet
+      window.scrollTo(0,y);
+      if(Math.abs(window.scrollY-y)>2) requestAnimationFrame(attempt);
+    })();
   }
 
   let current=TABS[0];
@@ -270,7 +280,11 @@
   writeHash();
 
   addEventListener('scroll',()=>{clearTimeout(window.__st);window.__st=setTimeout(saveScroll,150)},{passive:true});
+  // beforeunload is the reliable one; pagehide covers iOS/Safari, where beforeunload is not
+  // dependable. Both are cheap, and between them the position is saved even if no scroll
+  // event ever fires.
   addEventListener('beforeunload',saveScroll);
+  addEventListener('pagehide',saveScroll);
   // Back/forward between hash states should move the view, not silently desync it.
   addEventListener('hashchange',()=>{const s=readHash();showTab(s.tab||TABS[0]);apply(s.filter||'all');});
 </script>
