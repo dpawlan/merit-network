@@ -47,6 +47,13 @@
   .fs .k{font-size:9px;color:var(--faint);text-transform:uppercase;letter-spacing:.03em;margin-top:3px}
   .fs .b{height:3px;border-radius:2px;margin-top:8px;background:var(--line)}
   table{border-collapse:collapse;width:100%}
+  /* Sub-headings inside a tab (Backlog splits into untriaged requests vs named targets). */
+  .sub2{font-family:var(--disp);font-weight:800;letter-spacing:-.02em;text-transform:uppercase;
+    font-size:13px;margin:28px 0 6px;display:flex;align-items:baseline;gap:8px}
+  .sub2:first-of-type{margin-top:0}
+  .cnt2{font-family:var(--body);font-weight:600;font-size:11px;color:var(--accent);
+    border:1px solid var(--line);border-radius:999px;padding:1px 8px;letter-spacing:0}
+  .note2{color:var(--muted);font-size:12.5px;margin:0 0 12px;max-width:68ch}
   .tw{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
   th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line2);vertical-align:top}
   thead th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:600}
@@ -147,6 +154,21 @@
 
   <section id="backlog">
     <h1>Backlog</h1>
+
+    <h2 class="sub2">Untriaged requests <span class="cnt2">0</span></h2>
+    <p class="note2">Posted in #networking, captured verbatim. Not contacts yet — a name, a company,
+    or a whole sector. Decide what each one should become, then build the profile.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Raw request</th><th>By</th><th>Asked</th></tr></thead>
+        <tbody>
+          <tr><td colspan="3" class="co">Nothing waiting to triage.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub2">Named targets — profiled, not yet contacted</h2>
+    <p class="note2">Real people with pages, waiting on outreach.</p>
     <div class="tw">
       <table>
         <thead><tr><th>Target</th><th>Requested</th><th>Role</th><th>Status</th></tr></thead>
